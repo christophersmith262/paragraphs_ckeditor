@@ -20,7 +20,7 @@
 
     editor: null,
 
-    init: function(editorInstance) {
+    constructor: function(editorInstance) {
       this.editor = editorInstance;
     },
 
@@ -29,7 +29,7 @@
       element.setAttribute('data-paragraph-uuid', bufferItemModel.get('id'));
       element.setAttribute('data-context-hint', bufferItemModel.get('context'));
       this.editor.insertElement(element);
-      this.editor.widgets.initOn(element, 'ParagraphsCKEditorWidget');
+      this.editor.widgets.initOn(element, 'ParagraphsEditorWidget');
     },
 
     getBufferItem: function(editBuffer, editorWidget) {
@@ -52,15 +52,15 @@
     },
 
     destroyWidget: function(widgetModel) {
-      editor.widgets.del(editor.widgets.instances[widgetModel.get('id')]);
+      this.editor.widgets.del(this.editor.widgets.instances[widgetModel.get('id')]);
     },
 
     getRootEl: function() {
-      return editor.document.$;
+      return this.editor.document.$;
     },
 
     widgetExists: function(widgetModel) {
-      return editor.widgets.instances[widgetModel.get('id')];
+      return this.editor.widgets.instances[widgetModel.get('id')];
     }
 
   });
