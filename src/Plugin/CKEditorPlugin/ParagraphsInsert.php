@@ -19,7 +19,7 @@ class ParagraphsInsert extends CKEditorPluginBase implements CKEditorPluginCssIn
 
   public function getCssFiles(Editor $editor) {
     return array(
-      drupal_get_path('module', 'paragraphs_ckeditor') . '/css/widget.css',
+      drupal_get_path('module', 'paragraphs_editor') . '/css/resets.css',
     );
   }
 
