@@ -53,10 +53,19 @@
       this.editor.widgets.del(this.editor.widgets.instances[id]);
     },
 
-    attachInlineEditing: function(widgetEditorView, index, selector) {
-      widgetEditorView.model.widget.initEditable(index, {
+    attachInlineEditing: function(widgetView, index, selector) {
+      widgetView.model.widget.initEditable(index, {
         "selector": selector
       });
+    },
+
+    getInlineEdit: function(widgetView, index, selector) {
+      if (widgetView.model.widget.editables[index]) {
+        return widgetView.model.widget.editables[index].getData(true);
+      }
+      else {
+        return widgetView.$el.find(selector).html();
+      }
     },
 
     getRootEl: function() {
@@ -89,6 +98,8 @@
     },
     init: function (editor) {
       var $editor = $(editor.element.$);
+      var downcastingSessions = [];
+      var downcastedWidgets = {};
 
       // If no widget manager could be found for this instance then this isn't a
       // CKEditor instance we can attach to. In this case, we just don't add any
@@ -121,7 +132,7 @@
           allowedContent: contentFilter,
           requiredContent: contentFilter,
           exec: function() {
-            var $el = $(editor.getSelection().getStartElement());
+            var $el = $(editor.getSelection().getStartElement().$);
             widgetManager.insert($el);
           },
         });
@@ -131,6 +142,21 @@
           label: Drupal.t('Insert ' + editorContext.getSetting('title')),
           command: 'paragraphsinsert',
         });
+
+        editor.on('toDataFormat', function(evt) {
+          if (evt.data.downcastingSessionId) {
+            downcastingSessions.push(true);
+          }
+        }, null, null, 8);
+
+        editor.on('toDataFormat', function(evt) {
+          if (evt.data.downcastingSessionId) {
+            downcastingSessions.pop();
+            if (_.isEmpty(downcastingSessions)) {
+              downcastedWidgets = {};
+            }
+          }
+        }, null, null, 13);
 
         // Define the CKEditor widget that represents a paragraph in the editor.
         editor.widgets.add(adapter.widgetType, {
@@ -150,26 +176,33 @@
           downcast: function (element) {
             var widget = this;
 
-            // Create a temporary DOM element to store the saved html. We can't
-            // just pass through the 'element' parameter since it's not a true
-            // DOM element, but a CKEditor lightweight parser element
-            // representation. We also need to manually call getData on each
-            // editable since the default widget plugin handling for nested
-            // widgets doesn't support cases where we completely rewrite the
-            // existing DOM during downcasting.
-            var $el = $(element.getHtml());
-            $el.find('[contenteditable="true"]').each(function(i) {
-              if (widget.editables[i]) {
-                $(this).html(widget.editables[i].getData());
+            if (!downcastedWidgets[this.id]) {
+              // Save the html to the temporary DOM element and assign its
+              // contents back to the CKEditor parser element.
+
+              var $el = $(element.getOuterHtml());
+              widgetManager.save(widget.id, $el);
+              element.attributes = {};
+              $.each($el[0].attributes, function(i, attr) {
+                element.attributes[attr.name] = attr.value;
+              });
+              element.setHtml($el.html());
+              downcastedWidgets[this.id] = element;
+            }
+
+            return downcastedWidgets[this.id];
+          },
+
+          initEditable: function(editableName, definition) {
+            if (CKEDITOR.plugins.widget.prototype.initEditable.call(this, editableName, definition)) {
+              this.editables[editableName].getData = function(exportReady) {
+                return exportReady ? this.editor.dataProcessor.toDataFormat( this.getHtml(), {
+                  context: this.getName(),
+                  filter: this.filter,
+                  enterMode: this.enterMode
+                }) : '';
               }
-            });
-
-            // Save the html to the temporary DOM element and assign its
-            // contents back to the CKEditor parser element.
-            widgetManager.save(widget.id, $el);
-            element.setHtml($el.html());
-
-            return element;
+            }
           },
 
           /**
