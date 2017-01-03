@@ -3,8 +3,8 @@
 namespace Drupal\paragraphs_ckeditor\Plugin\CKEditorPlugin;
 
 use Drupal\ckeditor\CKEditorPluginBase;
-use Drupal\editor\Entity\Editor;
 use Drupal\ckeditor\CKEditorPluginCssInterface;
+use Drupal\editor\Entity\Editor;
 
 /**
  * Defines the "paragraphsinsert" plugin.
@@ -17,6 +17,9 @@ use Drupal\ckeditor\CKEditorPluginCssInterface;
  */
 class ParagraphsInsert extends CKEditorPluginBase implements CKEditorPluginCssInterface {
 
+  /**
+   * {@inheritdoc}
+   */
   public function getCssFiles(Editor $editor) {
     return array(
       drupal_get_path('module', 'paragraphs_editor') . '/css/resets.css',
@@ -47,6 +50,15 @@ class ParagraphsInsert extends CKEditorPluginBase implements CKEditorPluginCssIn
         'label' => t('Insert Paragraph'),
         'image' => drupal_get_path('module', 'paragraphs_ckeditor') . '/js/plugins/paragraphsinsert/icons/paragraphsinsert.png',
       ),
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  function getLibraries(Editor $editor) {
+    return array(
+      'paragraphs_ckeditor/editoradapter',
     );
   }
 }

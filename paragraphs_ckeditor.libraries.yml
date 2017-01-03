@@ -1,0 +1,10 @@
+editoradapter:
+  version: 1.x
+  js:
+    js/adapter/CKEditorWidget.js: {}
+
+toolboxtype:
+  version: 1.x
+  js:
+    js/include/ContextFilterCache.js: {}
+    js/toolboxtype/ParagraphToolboxType.js: {}
