@@ -16,10 +16,57 @@
 
   'use strict';
 
+  Drupal.ckeditor_widgetfilter.Filters.Paragraph = Drupal.ckeditor_widgetfilter.Filter.extend({
+
+    requires: ['paragraph-type'],
+
+    constructor: function(editor, schema) {
+      this._editor = editor;
+      this._schema = schema;
+    },
+
+    filter: function(el, dragData) {
+      var bundle = dragData.get('paragraph-type');
+      var $editor = $(this._editor.element.$);
+      if ($editor.paragraphsEditor('attached')) {
+        var context = $editor.paragraphsEditor('context', {
+          '$el': $(el.$),
+        });
+        var type = context.getFieldId();
+        if (this._schema.isAllowed(type, bundle)) {
+          return CKEDITOR.LINEUTILS_BEFORE | CKEDITOR.LINEUTILS_AFTER;
+        }
+      }
+    }
+  });
+
+  Drupal.ckeditor_widgetfilter.Decorators.ParagraphType = Drupal.ckeditor_widgetfilter.Decorator.extend({
+
+    requires: ['widget'],
+
+    provides: ['paragraph-type'],
+
+    constructor: function(editor) {
+      this._editor = editor;
+    },
+
+    decorate: function(evt, dragData) {
+      var $editor = $(this._editor.element.$);
+      if ($editor.paragraphsEditor('attached')) {
+        var widget = dragData.get('widget');
+        if (widget.name == 'ParagraphsEditorWidget') {
+          var widgetModel = $editor.paragraphsEditor('get', {id: widget.id});
+          var bundle = widgetModel.embedCode.getBufferItem().get('bundle');
+          dragData.set('paragraph-type', bundle);
+        }
+      }
+    },
+  });
+
   CKEDITOR.plugins.add('paragraphsinsert', {
     icons: 'paragraphsinsert',
     hidpi: false,
-    requires: [ "widget" ],
+    requires: [ "widget", "widgetfilter" ],
     beforeInit: function(editor) {
       var $editor = $(editor.element.$);
 
@@ -83,6 +130,14 @@
         editor.ui.addButton('ParagraphsInsert', {
           label: Drupal.t('Insert ' + editorContext.getSetting('title')),
           command: 'paragraphsinsert',
+        });
+
+        var contextCollection = Drupal.paragraphs_editor.loader.getContextFactory().collection();
+        var schema = new Drupal.ckeditor_toolbox.ContextFilterCache(contextCollection);
+        editor.widgetfilter.on('init', function(evt) {
+          editor.widgetfilter
+            .registerDecorator(new Drupal.ckeditor_widgetfilter.Decorators.ParagraphType(editor))
+            .registerFilter(new Drupal.ckeditor_widgetfilter.Filters.Paragraph(editor, schema));
         });
 
         editor.on('toDataFormat', function(evt) {
