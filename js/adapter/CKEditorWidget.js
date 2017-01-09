@@ -27,18 +27,17 @@
     },
 
     insertEmbedCode: function(embedCode) {
+      // Create the element to be inserted.
       var element = new CKEDITOR.dom.element(embedCode.getTagName());
       element.setAttributes(embedCode.getAttributes());
+
+      // Insert the markup.
       this.editor.insertElement(element);
-      this.editor.widgets.initOn(element, this.widgetType);
-    },
 
-    getViewMode: function(widget, id, $el) {
-      return widget.data.viewMode ? widget.data.viewMode : 'data';
-    },
-
-    setViewMode: function(widget, id, $el, viewMode) {
-      widget.setData('viewMode', viewMode);
+      // Initialize the new widget and set focus to it.
+      var widget = this.editor.widgets.initOn(element, this.widgetType);
+      this.editor.focus();
+      widget.focus();
     },
 
     widgetExists: function(id) {

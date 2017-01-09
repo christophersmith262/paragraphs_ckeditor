@@ -46,7 +46,6 @@
       // Issue an insert request if the paragraphsckeditor plugin is attached.
       var $editor = $(editor.element.$);
       if ($editor.paragraphsEditor('attached')) {
-        var $el = 
         $editor.paragraphsEditor('insert', {
           '$el': $(editor.getSelection().getStartElement().$),
           'type': toolboxItemModel.get('bundle')
@@ -55,7 +54,7 @@
 
       // We never directly insert markup from here. The paragraphsckeditor
       // plugin is now responsible for finishing the insert.
-      return false;
+      return;
     }
 
   });
