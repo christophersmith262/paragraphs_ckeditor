@@ -6,5 +6,4 @@ editoradapter:
 toolboxtype:
   version: 1.x
   js:
-    js/include/ContextFilterCache.js: {}
     js/toolboxtype/ParagraphToolboxType.js: {}

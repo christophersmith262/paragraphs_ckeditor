@@ -40,27 +40,21 @@
       widget.focus();
     },
 
-    widgetExists: function(id) {
-      if (this.editor.widgets.instances[id]) {
-        return !this.editor.widgets.instances[id].destroyed;
-      }
-      return false;
-    },
-
     destroyWidget: function(id) {
-      this.editor.widgets.instances[id].destroyed = true;
-      this.editor.widgets.del(this.editor.widgets.instances[id]);
+      if (this.editor.widgets.instances[id]) {
+        this.editor.widgets.del(this.editor.widgets.instances[id]);
+      }
     },
 
-    attachInlineEditing: function(widgetView, index, selector) {
-      widgetView.model.widget.initEditable(index, {
+    attachInlineEditing: function(widgetView, contextString, selector) {
+      widgetView.model.widget.initEditable(contextString, {
         "selector": selector
       });
     },
 
-    getInlineEdit: function(widgetView, index, selector) {
-      if (widgetView.model.widget.editables[index]) {
-        return widgetView.model.widget.editables[index].getData(true);
+    getInlineEdit: function(widgetView, contextString, selector) {
+      if (widgetView.model.widget.editables[contextString]) {
+        return widgetView.model.widget.editables[contextString].getData(true);
       }
       else {
         return widgetView.$el.find(selector).html();

@@ -31,7 +31,7 @@
         var context = $editor.paragraphsEditor('context', {
           '$el': $(element.$),
         });
-        var type = context.getFieldId();
+        var type = context.get('fieldId');
         if (this._filterCache.isAllowed(type, toolboxItemModel.get('bundle'))) {
           return true;
         }

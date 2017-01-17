@@ -32,7 +32,7 @@
         var context = $editor.paragraphsEditor('context', {
           '$el': $(el.$),
         });
-        var type = context.getFieldId();
+        var type = context.get('fieldId');
         if (this._schema.isAllowed(type, bundle)) {
           return CKEDITOR.LINEUTILS_BEFORE | CKEDITOR.LINEUTILS_AFTER;
         }
@@ -114,7 +114,7 @@
           breakAfterClose: true
         };
         editor.dataProcessor.writer.setRules(embedTag, formatRules);
-        editor.dataProcessor.writer.setRules('paragraphs-editor-nested-editor', formatRules);
+        editor.dataProcessor.writer.setRules('paragraph-field', formatRules);
 
         // Provide a command for creating an "insert paragraph" dialog.
         editor.addCommand('paragraphsinsert', {
@@ -132,8 +132,7 @@
           command: 'paragraphsinsert',
         });
 
-        var contextCollection = Drupal.paragraphs_editor.loader.getContextFactory().collection();
-        var schema = new Drupal.ckeditor_toolbox.ContextFilterCache(contextCollection);
+        var schema = Drupal.paragraphs_editor.loader.getSchema();
         editor.widgetfilter.on('init', function(evt) {
           editor.widgetfilter
             .registerDecorator(new Drupal.ckeditor_widgetfilter.Decorators.ParagraphType(editor))
@@ -212,7 +211,7 @@
             // Add a garbage collection handler so that the model / view are
             // destroyed when the widget is destroyed.
             this.on('destroy', function(evt) {
-              widgetManager.destroy(this.id);
+              widgetManager.destroy(this.id, true);
             });
           }
         });

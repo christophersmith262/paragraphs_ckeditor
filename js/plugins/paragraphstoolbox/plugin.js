@@ -31,16 +31,15 @@
   });
 
 
-  var contextCollection = Drupal.paragraphs_editor.loader.getContextFactory().collection();
-  var filterCache = new Drupal.ckeditor_toolbox.ContextFilterCache(contextCollection);
-  var toolboxType = new Drupal.paragraphs_ckeditor.ParagraphToolboxType(filterCache);
+  var schema = Drupal.paragraphs_editor.loader.getSchema();
+  var toolboxType = new Drupal.paragraphs_ckeditor.ParagraphToolboxType(schema);
   Drupal.ckeditor_toolbox.manager.registerType('paragraph', toolboxType);
 
   CKEDITOR.plugins.add('paragraphstoolbox', {
     icons: null,
     hidpi: false,
     requires: ["ckeditortoolbox"],
-    cache: filterCache,
+    cache: schema,
     type: toolboxType,
     init: function(editor) {
       editor.widgetfilter.on('init', function(evt) {
