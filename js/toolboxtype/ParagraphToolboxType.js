@@ -16,8 +16,6 @@
 
   'use strict';
 
-  Drupal.paragraphs_ckeditor = {};
-
   Drupal.paragraphs_ckeditor.ParagraphToolboxType = Drupal.ckeditor_toolbox.ToolboxType.extend({
 
     constructor: function(filterCache) {
@@ -31,7 +29,7 @@
         var context = $editor.paragraphsEditor('context', {
           '$el': $(element.$),
         });
-        var type = context.get('fieldId');
+        var type = context.get('field');
         if (this._filterCache.isAllowed(type, toolboxItemModel.get('bundle'))) {
           return true;
         }

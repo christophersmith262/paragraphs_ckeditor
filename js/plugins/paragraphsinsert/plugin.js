@@ -16,23 +16,30 @@
 
   'use strict';
 
+  var widgetBinder = Drupal.paragraphs_editor.instances['paragraphs_ckeditor'];
+  var widgetType = 'ParagraphsEditorWidget';
+  var elementFactory = widgetBinder.getElementFactory();
+  var widgetTemplate = elementFactory.getTemplate('widget');
+  var fieldTemplate = elementFactory.getTemplate('field');
+  var contentFilter = widgetTemplate.getTag() + '[' + widgetTemplate.getAttributeNames().join() + ']';
+  var schema = widgetBinder.getSchema();
+
   Drupal.ckeditor_widgetfilter.Filters.Paragraph = Drupal.ckeditor_widgetfilter.Filter.extend({
 
     requires: ['paragraph-type'],
 
-    constructor: function(editor, schema) {
+    constructor: function(editor, schema, binder) {
       this._editor = editor;
       this._schema = schema;
+      this._binder = binder;
     },
 
     filter: function(el, dragData) {
       var bundle = dragData.get('paragraph-type');
       var $editor = $(this._editor.element.$);
-      if ($editor.paragraphsEditor('attached')) {
-        var context = $editor.paragraphsEditor('context', {
-          '$el': $(el.$),
-        });
-        var type = context.get('fieldId');
+      if ($editor.hasClass('widget-binder-open')) {
+        var context = this._binder.resolveContext($(el.$));
+        var type = context.get('field');
         if (this._schema.isAllowed(type, bundle)) {
           return CKEDITOR.LINEUTILS_BEFORE | CKEDITOR.LINEUTILS_AFTER;
         }
@@ -46,17 +53,18 @@
 
     provides: ['paragraph-type'],
 
-    constructor: function(editor) {
+    constructor: function(editor, binder) {
       this._editor = editor;
+      this._binder = binder;
     },
 
     decorate: function(evt, dragData) {
       var $editor = $(this._editor.element.$);
-      if ($editor.paragraphsEditor('attached')) {
+      if ($editor.hasClass('widget-binder-open')) {
         var widget = dragData.get('widget');
-        if (widget.name == 'ParagraphsEditorWidget') {
-          var widgetModel = $editor.paragraphsEditor('get', {id: widget.id});
-          var bundle = widgetModel.embedCode.getBufferItem().get('bundle');
+        if (widget.name == widgetType) {
+          var widgetModel = this._binder.get(widget.id);
+          var bundle = widgetModel.editBufferItemRef.editBufferItem.get('bundle');
           dragData.set('paragraph-type', bundle);
         }
       }
@@ -74,8 +82,8 @@
       // CKEDITOR DOM model or it will get confused and add wayward <p> tags.
       // Here we will register the paragraphs-editor-paragraph tag to behave
       // like a div tag.
-      if ($editor.paragraphsEditor('attachable')) {
-        var embedTag = $editor.paragraphsEditor('embed-factory').getTag();
+      if ($editor.hasClass('widget-binder-open')) {
+        var embedTag = widgetTemplate.getTag();
         CKEDITOR.dtd[embedTag] = CKEDITOR.dtd.div;
         for (var tagName in CKEDITOR.dtd) {
           if (CKEDITOR.dtd[tagName].div) {
@@ -93,17 +101,8 @@
       // If no widget manager could be found for this instance then this isn't a
       // CKEditor instance we can attach to. In this case, we just don't add any
       // options to the editor.
-      if ($editor.paragraphsEditor('attachable')) {
-        var embedCodeFactory = $editor.paragraphsEditor('embed-factory');
-        var editorContext = $editor.paragraphsEditor('context');
-
-        var embedTag = embedCodeFactory.getTag();
-        var embedAttributes = embedCodeFactory.getAttributes(true);
-        var contentFilter = embedTag + '[' + embedAttributes.join() + ']';
-
-        // Initialize the widget manager for use with this editor.
-        var adapter = new Drupal.paragraphs_editor.Adapters.CKEditorWidget(editor, 'ParagraphsEditorWidget');
-        var widgetManager = $editor.paragraphsEditor('attach', adapter);
+      if ($editor.hasClass('paragraphs-editor')) {
+        var binder = widgetBinder.open($editor, editor, widgetType);
 
         // Set up formatting rules for writing CKEditor output markup.
         var formatRules = {
@@ -113,8 +112,8 @@
           breakBeforeClose: true,
           breakAfterClose: true
         };
-        editor.dataProcessor.writer.setRules(embedTag, formatRules);
-        editor.dataProcessor.writer.setRules('paragraph-field', formatRules);
+        editor.dataProcessor.writer.setRules(widgetTemplate.getTag(), formatRules);
+        editor.dataProcessor.writer.setRules(fieldTemplate.getTag(), formatRules);
 
         // Provide a command for creating an "insert paragraph" dialog.
         editor.addCommand('paragraphsinsert', {
@@ -122,21 +121,20 @@
           requiredContent: contentFilter,
           exec: function() {
             var $el = $(editor.getSelection().getStartElement().$);
-            widgetManager.insert($el);
+            binder.create($el);
           },
         });
 
         // Provide the ui component for the "insert paragraph" command.
         editor.ui.addButton('ParagraphsInsert', {
-          label: Drupal.t('Insert ' + editorContext.getSetting('title')),
+          label: Drupal.t('Insert ' + binder.getSetting('title')),
           command: 'paragraphsinsert',
         });
 
-        var schema = Drupal.paragraphs_editor.loader.getSchema();
         editor.widgetfilter.on('init', function(evt) {
           editor.widgetfilter
-            .registerDecorator(new Drupal.ckeditor_widgetfilter.Decorators.ParagraphType(editor))
-            .registerFilter(new Drupal.ckeditor_widgetfilter.Filters.Paragraph(editor, schema));
+            .registerDecorator(new Drupal.ckeditor_widgetfilter.Decorators.ParagraphType(editor, binder))
+            .registerFilter(new Drupal.ckeditor_widgetfilter.Filters.Paragraph(editor, schema, binder));
         });
 
         editor.on('toDataFormat', function(evt) {
@@ -155,7 +153,7 @@
         }, null, null, 13);
 
         // Define the CKEditor widget that represents a paragraph in the editor.
-        editor.widgets.add(adapter.widgetType, {
+        editor.widgets.add(widgetType, {
           allowedContent: contentFilter,
           requiredContent: contentFilter,
 
@@ -163,21 +161,16 @@
            * Determines whether an element should be converted to a widget.
            */
           upcast: function (element) {
-            return element.name == embedTag;
+            return element.name == widgetTemplate.getTag();
           },
 
           /**
            * Converts saved html to a form the back end can consume.
            */
           downcast: function (element) {
-            var widget = this;
-
             if (!downcastedWidgets[this.id]) {
-              // Save the html to the temporary DOM element and assign its
-              // contents back to the CKEditor parser element.
-
               var $el = $(element.getOuterHtml());
-              widgetManager.save(widget.id, $el);
+              binder.save(this.id, $el);
               element.attributes = {};
               $.each($el[0].attributes, function(i, attr) {
                 element.attributes[attr.name] = attr.value;
@@ -206,12 +199,12 @@
            */
           init: function() {
             // Make the widget editor aware of the newly embedded widget.
-            widgetManager.create(this, this.id, $(this.element.$));
+            binder.bind(this, this.id, $(this.element.$));
 
             // Add a garbage collection handler so that the model / view are
             // destroyed when the widget is destroyed.
             this.on('destroy', function(evt) {
-              widgetManager.destroy(this.id, true);
+              binder.destroy(this.id, true);
             });
           }
         });

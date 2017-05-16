@@ -16,7 +16,7 @@
 
   'use strict';
 
-  Drupal.paragraphs_editor.Adapters.CKEditorWidget = Drupal.paragraphs_editor.Adapter.extend({
+  Drupal.paragraphs_ckeditor.CKEditorWidgetAdapter = Drupal.paragraphs_editor.WidgetBinder.PluginInterface.EditorAdapter.extend({
 
     editor: null,
     widgetType: null,
@@ -66,5 +66,11 @@
     },
 
   });
+
+  Drupal.paragraphs_ckeditor.CKEditorWidgetAdapter.create = function($editorEl, editor, pluginType) {
+    return new Drupal.paragraphs_ckeditor.CKEditorWidgetAdapter(editor, pluginType);
+  }
+
+  Drupal.paragraphs_editor.register('paragraphs_ckeditor', Drupal.paragraphs_ckeditor.CKEditorWidgetAdapter);
 
 })(jQuery, Drupal, CKEDITOR);
