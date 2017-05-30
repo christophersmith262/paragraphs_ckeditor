@@ -35,12 +35,12 @@
     },
 
     filter: function(el, dragData) {
-      var bundle = dragData.get('paragraph-type');
+      var type = dragData.get('paragraph-type');
       var $editor = $(this._editor.element.$);
       if ($editor.hasClass('widget-binder-open')) {
         var context = this._binder.resolveContext($(el.$));
-        var type = context.get('field');
-        if (this._schema.isAllowed(type, bundle)) {
+        var schemaId = context.get('schemaId');
+        if (this._schema.isAllowed(schemaId, type)) {
           return CKEDITOR.LINEUTILS_BEFORE | CKEDITOR.LINEUTILS_AFTER;
         }
       }
@@ -64,8 +64,8 @@
         var widget = dragData.get('widget');
         if (widget.name == widgetType) {
           var widgetModel = this._binder.get(widget.id);
-          var bundle = widgetModel.editBufferItemRef.editBufferItem.get('bundle');
-          dragData.set('paragraph-type', bundle);
+          var type = widgetModel.editBufferItemRef.editBufferItem.get('type');
+          dragData.set('paragraph-type', type);
         }
       }
     },
@@ -82,7 +82,7 @@
       // CKEDITOR DOM model or it will get confused and add wayward <p> tags.
       // Here we will register the paragraphs-editor-paragraph tag to behave
       // like a div tag.
-      if ($editor.hasClass('widget-binder-open')) {
+      if ($editor.hasClass('paragraphs-editor')) {
         var embedTag = widgetTemplate.getTag();
         CKEDITOR.dtd[embedTag] = CKEDITOR.dtd.div;
         for (var tagName in CKEDITOR.dtd) {
@@ -103,6 +103,7 @@
       // options to the editor.
       if ($editor.hasClass('paragraphs-editor')) {
         var binder = widgetBinder.open($editor, editor, widgetType);
+        $editor.data('widget-binder', binder);
 
         // Set up formatting rules for writing CKEditor output markup.
         var formatRules = {
@@ -117,7 +118,7 @@
 
         // Provide a command for creating an "insert paragraph" dialog.
         editor.addCommand('paragraphsinsert', {
-          allowedContent: contentFilter,
+          allowedContent: true,
           requiredContent: contentFilter,
           exec: function() {
             var $el = $(editor.getSelection().getStartElement().$);
@@ -154,7 +155,7 @@
 
         // Define the CKEditor widget that represents a paragraph in the editor.
         editor.widgets.add(widgetType, {
-          allowedContent: contentFilter,
+          allowedContent: true,
           requiredContent: contentFilter,
 
           /**
