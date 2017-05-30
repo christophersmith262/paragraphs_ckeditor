@@ -16,8 +16,6 @@
 
   'use strict';
 
-  Drupal.paragraphs_ckeditor = {};
-
   Drupal.paragraphs_ckeditor.ParagraphToolboxType = Drupal.ckeditor_toolbox.ToolboxType.extend({
 
     constructor: function(filterCache) {
@@ -25,13 +23,9 @@
     },
 
     filter: function(toolboxItemModel, editor, element) {
-
-      var $editor = $(editor.element.$);
-      if ($editor.paragraphsEditor('attached')) {
-        var context = $editor.paragraphsEditor('context', {
-          '$el': $(element.$),
-        });
-        var type = context.get('fieldId');
+      if ($editor.hasClass('widget-binder-open')) {
+        var context = $editor.data('widget-binder').resolveContext($(element.$));
+        var type = context.get('field');
         if (this._filterCache.isAllowed(type, toolboxItemModel.get('bundle'))) {
           return true;
         }
@@ -45,11 +39,8 @@
 
       // Issue an insert request if the paragraphsckeditor plugin is attached.
       var $editor = $(editor.element.$);
-      if ($editor.paragraphsEditor('attached')) {
-        $editor.paragraphsEditor('insert', {
-          '$el': $(editor.getSelection().getStartElement().$),
-          'type': toolboxItemModel.get('bundle')
-        });
+      if ($editor.hasClass('widget-binder-open')) {
+        $editor.data('widget-binder').create($(editor.getSelection().getStartElement().$), toolboxItemModel.get('bundle'));
       }
 
       // We never directly insert markup from here. The paragraphsckeditor

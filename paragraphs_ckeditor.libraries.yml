@@ -1,9 +1,17 @@
+core:
+  version: 1.x
+  js:
+    js/paragraphsckeditor.js: {}
 editoradapter:
   version: 1.x
   js:
     js/adapter/CKEditorWidget.js: {}
-
+  dependencies:
+    - paragraphs_editor/core
+    - paragraphs_ckeditor/core
 toolboxtype:
   version: 1.x
   js:
     js/toolboxtype/ParagraphToolboxType.js: {}
+  dependencies:
+    - paragraphs_ckeditor/core

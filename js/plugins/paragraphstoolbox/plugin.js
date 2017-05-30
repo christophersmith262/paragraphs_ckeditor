@@ -16,6 +16,10 @@
 
   'use strict';
 
+  var widgetBinder = Drupal.paragraphs_editor.instances['paragraphs_ckeditor'];
+  var schema = widgetBinder.getSchema();
+  var toolboxType = new Drupal.paragraphs_ckeditor.ParagraphToolboxType(schema);
+
   Drupal.ckeditor_widgetfilter.Decorators.ParagraphToolboxItem = Drupal.ckeditor_widgetfilter.Decorator.extend({
 
     requires: ['toolbox-item'],
@@ -31,8 +35,6 @@
   });
 
 
-  var schema = Drupal.paragraphs_editor.loader.getSchema();
-  var toolboxType = new Drupal.paragraphs_ckeditor.ParagraphToolboxType(schema);
   Drupal.ckeditor_toolbox.manager.registerType('paragraph', toolboxType);
 
   CKEDITOR.plugins.add('paragraphstoolbox', {
