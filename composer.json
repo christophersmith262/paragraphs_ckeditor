@@ -13,6 +13,6 @@
   },
   "license": "GPL-2.0+",
   "require": {
-    "christophersmith262/paragraphs_editor": "^1.1"
+    "christophersmith262/paragraphs_editor": "8.x"
   }
 }
