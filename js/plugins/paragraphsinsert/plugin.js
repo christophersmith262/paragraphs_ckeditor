@@ -24,6 +24,16 @@
   var contentFilter = widgetTemplate.getTag() + '[' + widgetTemplate.getAttributeNames().join() + ']';
   var schema = widgetBinder.getSchema();
 
+  widgetBinder.getSyncActionResolver().addCollection('asset', function(attributes) {
+    var ckeditorId = widgetBinder.getEditors()
+      .get(attributes.editorContextId)
+      .get('ckeditorId');
+
+    if (CKEDITOR.instances[ckeditorId]) {
+      return CKEDITOR.instances[ckeditorId].drupalAssets;
+    }
+  });
+
   Drupal.ckeditor_widgetfilter.Filters.Paragraph = Drupal.ckeditor_widgetfilter.Filter.extend({
 
     requires: ['paragraph-type'],
@@ -74,7 +84,7 @@
   CKEDITOR.plugins.add('paragraphsinsert', {
     icons: 'paragraphsinsert',
     hidpi: false,
-    requires: [ "widget", "widgetfilter" ],
+    requires: [ "widget", "widgetfilter", "editor_assets" ],
     beforeInit: function(editor) {
       var $editor = $(editor.element.$);
 
@@ -104,6 +114,19 @@
       if ($editor.hasClass('paragraphs-editor')) {
         var binder = widgetBinder.open($editor, editor, widgetType);
         $editor.data('widget-binder', binder);
+
+        widgetBinder.getEditors().get(binder.resolveContext($editor).get('id')).set({
+          'ckeditorId': editor.name,
+        });
+
+        binder.on('bind', function(binder, widgetModel, widgetView) {
+          widgetView.on('DOMRender', function(widgetView, $el) {
+            editor.drupalAssets.attachBehaviors($el[0]);
+          });
+          widgetView.on('DOMRemove', function(widgetView, $el) {
+            editor.drupalAssets.detachBehaviors($el[0]);
+          });
+        });
 
         // Set up formatting rules for writing CKEditor output markup.
         var formatRules = {
