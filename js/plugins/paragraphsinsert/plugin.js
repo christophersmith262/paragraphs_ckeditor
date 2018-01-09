@@ -12,7 +12,7 @@
  *
  * @ignore
  */
-(function ($, Drupal, CKEDITOR) {
+(function ($, Drupal, drupalSettings, CKEDITOR) {
 
   'use strict';
 
@@ -24,14 +24,17 @@
   var contentFilter = widgetTemplate.getTag() + '[' + widgetTemplate.getAttributeNames().join() + ']';
   var schema = widgetBinder.getSchema();
 
+  var emptySet = new Backbone.Collection();
   widgetBinder.getSyncActionResolver().addCollection('asset', function(attributes) {
-    var ckeditorId = widgetBinder.getEditors()
-      .get(attributes.editorContextId)
-      .get('ckeditorId');
+    var editorModel = widgetBinder.getEditors().get(attributes.editorContextId);
+    if (editorModel) {
+      var ckeditorId = editorModel.get('ckeditorId');
 
-    if (CKEDITOR.instances[ckeditorId]) {
-      return CKEDITOR.instances[ckeditorId].drupalAssets;
+      if (CKEDITOR.instances[ckeditorId]) {
+        return CKEDITOR.instances[ckeditorId].drupalAssets;
+      }
     }
+    return emptySet;
   });
 
   Drupal.ckeditor_widgetfilter.Filters.Paragraph = Drupal.ckeditor_widgetfilter.Filter.extend({
@@ -118,6 +121,8 @@
         widgetBinder.getEditors().get(binder.resolveContext($editor).get('id')).set({
           'ckeditorId': editor.name,
         });
+
+        widgetBinder.getSyncActionResolver().resolve(drupalSettings.paragraphs_editor);
 
         binder.on('bind', function(binder, widgetModel, widgetView) {
           widgetView.on('DOMRender', function(widgetView, $el) {
@@ -236,4 +241,4 @@
     }
   });
 
-})(jQuery, Drupal, CKEDITOR);
+})(jQuery, Drupal, drupalSettings, CKEDITOR);
