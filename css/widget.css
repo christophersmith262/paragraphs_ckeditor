@@ -1,41 +1,129 @@
-/* line 1, ../sass/components/_widget-container.scss */
-.paragraphs-ckeditor-widget {
-  border: 1px dashed #ccc;
-  padding: .25rem;
+.cke_widget_wrapper:hover > paragraph.cke_widget_element {
+  outline: unset;
 }
 
-/* line 7, ../sass/components/_widget-container.scss */
-.cke_widget_selected .paragraphs-ckeditor-widget {
-  border: 1px dashed #007db8;
+.cke_widget_wrapper:hover paragraph .cke_widget_editable {
+  outline: unset;
 }
 
-/* line 1, ../sass/components/_widget-toolbar.scss */
-.paragraphs-ckeditor-widget-toolbar {
-  background: #f6f6f6;
-  border-radius: 5px;
-  display: inline-block;
-  margin-bottom: 0;
-  padding: .5rem;
-}
-/* line 8, ../sass/components/_widget-toolbar.scss */
-.paragraphs-ckeditor-widget-toolbar__item {
-  display: inline-block;
-  list-style: none;
-  margin: 0 .5rem;
+.cke_widget_wrapper:hover.js-paragraph-hover paragraph .cke_widget_editable paragraph .cke_widget_editable {
+  outline: unset;
 }
 
-/* line 1, ../sass/components/_command-button.scss */
-.paragraphs-ckeditor-command {
-  color: #0073bb;
-  text-transform: Capitalize;
+.cke_widget_wrapper.cke_widget_focused > paragraph.cke_widget_element,
+.cke_widget_wrapper paragraph .cke_widget_editable.cke_widget_editable_focused {
+  outline: unset;
 }
-/* line 5, ../sass/components/_command-button.scss */
-.paragraphs-ckeditor-command--remove {
-  color: #990000;
+
+.js-paragraph-hover .js-paragraph-selectable {
+  outline: 2px solid #ace;
+}
+
+.js-paragraph-selected .js-paragraph-selectable {
+  outline: 2px solid #ace;
+}
+
+.js-paragraph-selected .cke_widget_drag_handler_container {
+}
+
+.js-paragraph-selected .cke_widget_drag_handler_container {
+}
+
+.widget-binder-toolbox {
   display: none;
 }
 
-/* line 13, ../sass/components/_command-button.scss */
-.cke_widget_selected .paragraphs-ckeditor-command--remove {
-  display: initial;
+
+.paragraph-hover-style {
+  position: absolute;
+  outline: 2px solid yellow;
+  z-index: 100;
+}
+
+.js-paragraph-hover {
+  position: relative;
+}
+
+.widget-binder-widget__display {
+  left: 0 !important;
+  top: 0 !important;
+}
+
+.widget-binder-toolbox {
+  width: fit-content;
+}
+
+.widget-binder-toolbox__item svg {
+  width: 20px;
+  height: 20px;
+}
+
+.paragraphs-ckeditor-type {
+  display: none;
+  background: #ace;
+  color: #464646;
+  fill: #464646;
+  width: fit-content;
+  position: absolute;
+  height: 24px;
+  padding: 5px;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+.toolbar {
+  z-index: 99;
+}
+
+.toolbar__label, .toolbar__actions {
+  background: #009cff;
+  color: #fff;
+  fill: #fff;
+  width: fit-content;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  font-size: 12px;
+  position: relative;
+  height: 25px;
+}
+
+.toolbar__label {
+  float: left;
+  padding: 2px 5px;
+}
+
+.toolbar__actions {
+  float: right;
+}
+
+.toolbar__actions {
+  list-style: none;
+}
+
+.toolbar-action {
+  display: inline-block;
+  padding: 0 5px;
+}
+
+.toolbar-action svg {
+  width: 20px;
+  height: 20px;
+}
+
+.toolbar-action a {
+  top: 2px;
+  border-bottom: 0;
+  display: block;
+  opacity: .9;
+  position: relative;
+}
+
+.toolbar-action a:hover {
+  border-bottom: 0;
+  opacity: 1;
+}
+
+.js-toolbar-active {
+  outline: 2px solid #009cff !important;
 }

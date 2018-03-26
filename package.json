@@ -1,0 +1,25 @@
+{
+  "name": "paragraphs_ckeditor",
+  "version": "1.0.0",
+  "description": "This module provides a CKEditor widget for paragraphs fields in order to allow in-context embedded paragraphs in structured WYSIWYG fields. See [the paragraphs_ckeditor website]() for more information.",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/christophersmith262/paragraphs_ckeditor.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/christophersmith262/paragraphs_ckeditor/issues"
+  },
+  "homepage": "https://github.com/christophersmith262/paragraphs_ckeditor#readme",
+  "devDependencies": {
+    "babel-loader": "^7.1.4",
+    "file-loader": "^1.1.11",
+    "webpack": "^4.2.0",
+    "webpack-cli": "^2.0.12"
+  }
+}

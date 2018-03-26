@@ -16,6 +16,9 @@ settings:
           items:
             - Bold
             - Italic
+            - JustifyLeft
+            - JustifyCenter
+            - JustifyRight
         -
           name: Links
           items:
@@ -30,17 +33,21 @@ settings:
           name: Media
           items:
             - Blockquote
-            - DrupalImage
-            - ParagraphsInsert
+            - ParagraphsEditor
         -
           name: Tools
           items:
+            - Maximize
             - Source
   plugins:
     language:
       language_list: un
     stylescombo:
       styles: ''
+    paragraphseditor:
+      show_button: 1
+      show_toolbar: 1
+      autoload_libraries: 1
 image_upload:
   status: false
   scheme: public

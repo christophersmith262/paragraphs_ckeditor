@@ -1,7 +1,17 @@
+uuid: 3789b7e5-b6e3-4394-9772-1d3b24817a30
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  module:
+    - dom_processor
 name: 'Paragraphs CKEditor'
 format: paragraphs_ckeditor
 weight: 0
-filters: {  }
+filters:
+  dom_processor:
+    id: dom_processor
+    provider: dom_processor
+    status: true
+    weight: 0
+    settings:
+      paragraphs_editor: default
